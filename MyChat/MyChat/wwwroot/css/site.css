@@ -20,3 +20,38 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.text-error {
+  color: #ff1c1c;
+}
+
+.avatar-block{
+  width: 9.8em;
+  height: 9.8em;
+}
+
+.ml-1{
+  margin-left: 0.8em;
+}
+
+.avatar-block{
+  width: 9.8em;
+  height: 9.8em;
+}
+
+.ml-1{
+  margin-left: 0.8em;
+}
+
+.border-radius-1{
+  border-radius: 1.4em;
+}
+
+.comment-user-avatar{
+  width: 1.9em;
+  height: 1.9em;
+}
+
+.ml-2 {
+  margin-left: 1.4em;
+}
