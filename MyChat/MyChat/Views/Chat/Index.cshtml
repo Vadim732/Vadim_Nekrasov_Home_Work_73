@@ -1,5 +1,40 @@
-﻿@{
-    ViewBag.Title = "title";
+﻿@model TModel
+
+@{
+    ViewBag.Title = "Main page - Chat";
 }
 
-<h2>title</h2>
+<div class="mt-4">
+    <div class="row">
+        <div class="bg-dark text-white pt-2 pb-2 text-center">
+            <h3>Добро пожаловать в чат</h3>
+        </div>
+        <div class="col-12 border rounded chat">
+            <div class="p-2">
+                <div>
+                    <span class="text-muted small">25.05.2024</span>
+                    <strong>кто-то:</strong>
+                    <div>сообщение</div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-muted small">25.05.2024</span>
+                    <strong>кто-то2:</strong>
+                    <div>сообщение</div>
+                </div>
+                <div class="mt-2 text-end">
+                    <span class="text-muted small">25.05.2024</span>
+                    <strong>Вы:</strong>
+                    <div>сообщение</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row bg-dark pt-3 pb-3">
+        <div class="col-10">
+            <input type="text" class="form-control" placeholder="Введите сообщение...">
+        </div>
+        <div class="col-2">
+            <button class="btn btn-outline-light w-100">Отправить</button>
+        </div>
+    </div>
+</div>

@@ -55,3 +55,9 @@ body {
 .ml-2 {
   margin-left: 1.4em;
 }
+
+.chat {
+  height: 80vh;
+  overflow-y: scroll;
+  background-color: #f8f9fa;
+}
