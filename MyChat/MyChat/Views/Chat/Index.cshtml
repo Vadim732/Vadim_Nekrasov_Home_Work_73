@@ -1,4 +1,4 @@
-﻿@model TModel
+﻿@model IEnumerable<MyChat.Models.Message>
 
 @{
     ViewBag.Title = "Main page - Chat";
@@ -11,30 +11,27 @@
         </div>
         <div class="col-12 border rounded chat">
             <div class="p-2">
-                <div>
-                    <span class="text-muted small">25.05.2024</span>
-                    <strong>кто-то:</strong>
-                    <div>сообщение</div>
-                </div>
-                <div class="mt-2">
-                    <span class="text-muted small">25.05.2024</span>
-                    <strong>кто-то2:</strong>
-                    <div>сообщение</div>
-                </div>
-                <div class="mt-2 text-end">
-                    <span class="text-muted small">25.05.2024</span>
-                    <strong>Вы:</strong>
-                    <div>сообщение</div>
-                </div>
+                @foreach (var m in Model)
+                {
+                    <div class="mt-2">
+                        <span class="text-muted small">@m.DateOfDispatch</span>
+                        <strong>@m.User.UserName</strong>
+                        <div>@m.Inscription</div>
+                    </div>
+                }
             </div>
         </div>
     </div>
     <div class="row bg-dark pt-3 pb-3">
-        <div class="col-10">
-            <input type="text" class="form-control" placeholder="Введите сообщение...">
-        </div>
-        <div class="col-2">
-            <button class="btn btn-outline-light w-100">Отправить</button>
-        </div>
+        <form asp-action="Index" asp-controller="Chat" asp-anti-forgery="true">
+            <div asp-validation-summary="ModelOnly" class="text-error"></div>
+            <div class="col-10">
+                <input type="text" asp-for="Inscription" class="form-control" placeholder="Введите сообщение...">
+                <span asp-validation-for="Inscription" class="text-error"/>
+            </div>
+            <div class="col-2">
+                <button type="submit" class="btn btn-outline-light w-100">Отправить</button>
+            </div>
+        </form>
     </div>
 </div>
