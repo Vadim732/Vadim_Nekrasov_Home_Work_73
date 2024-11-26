@@ -19,7 +19,12 @@ public class AccountController : Controller
         _signInManager = signInManager;
         _context = context;
     }
-    
+    [Authorize (Roles = "admin")]
+    public IActionResult Index()
+    {
+        List<User> users = _userManager.Users.ToList();
+        return View(users);
+    }
     [HttpGet]
     public IActionResult Login()
     {
@@ -202,5 +207,21 @@ public class AccountController : Controller
     {
         await _signInManager.SignOutAsync();
         return RedirectToAction("Login");
+    }
+    public async Task<IActionResult> BlockUser(int userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return NotFound($"Пользователь с ID {userId} не найден.");
+        }
+        user.LockoutEnd = DateTimeOffset.MaxValue;
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
+            ViewBag.Message = "Пользователь успешно заблокирован навсегда.";
+            return RedirectToAction("Index", "Account");
+        }
+        return RedirectToAction("Index", "Account");
     }
 }

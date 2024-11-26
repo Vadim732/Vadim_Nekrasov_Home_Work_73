@@ -1,0 +1,27 @@
+@model List<User>
+
+@{
+    ViewBag.Title = "All Users";
+}
+
+<div class="container">
+    <table>
+        <tr>
+            <th>Пользователи</th>
+            <th>Действия</th>
+        </tr>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.UserName</td>
+                <td>
+                    <button class="btn btn-success">Редактировать</button>
+                    @if (!a.LockoutEnd.HasValue)
+                    {
+                        <a asp-action="BlockUser" asp-route-userId="@a.Id" class="btn btn-success">Блокировать</a>
+                    }
+                </td>
+            </tr> 
+        }
+    </table>
+</div>
