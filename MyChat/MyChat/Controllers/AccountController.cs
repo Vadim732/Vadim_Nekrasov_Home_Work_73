@@ -59,6 +59,68 @@ public class AccountController : Controller
     }
     
     [HttpGet]
+    public IActionResult RegisterUser()
+    {
+        return View();
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RegisterUser(RegisterViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var existingUserEmail = await _userManager.FindByEmailAsync(model.Email);
+        if (existingUserEmail != null)
+        {
+            ViewBag.ErrorMessage = "Ошибка: Этот адрес электронной почты уже используется другим пользователем!";
+            return View(model);
+        }
+    
+        var existingUserName = await _userManager.FindByNameAsync(model.UserName);
+        if (existingUserName != null)
+        {
+            ViewBag.ErrorMessage = "Ошибка: Этот логин уже используется другим пользователем!";
+            return View(model);
+        }
+        
+        var currentDate = DateTime.UtcNow;
+        var userAge = currentDate.Year - model.DateOfBirth.Year;
+        if (model.DateOfBirth > currentDate.AddYears(-userAge)) 
+        {
+            userAge--;
+        }
+        if (userAge < 18)
+        {
+            ViewBag.ErrorMessage = "Ошибка: Нельзя зарегистрироваться пользователям моложе 18 лет!";
+            return View(model);
+        }
+        
+        var user = new User
+        {
+            UserName = model.UserName,
+            Email = model.Email,
+            Avatar = model.Avatar,
+            DateOfBirth = model.DateOfBirth.ToUniversalTime()
+        };
+
+        var result = await _userManager.CreateAsync(user, model.Password);
+        if (result.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(user, "user");
+            return RedirectToAction("Index", "Account");
+        }
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+
+        return View(model);
+    }
+    [HttpGet]
     public IActionResult Register()
     {
         return View();

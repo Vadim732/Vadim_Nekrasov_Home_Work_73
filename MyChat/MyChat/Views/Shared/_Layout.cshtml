@@ -22,7 +22,7 @@
                     @if (User.IsInRole("admin"))
                     {
                         <li class="nav-item ml-2">
-                            <a class="nav-link text-white">Добавить пользователя</a>
+                            <a class="nav-link text-white" asp-controller="Account" asp-action="RegisterUser">Добавить пользователя</a>
                         </li>
                         <li class="nav-item ml-2">
                             <a class="nav-link text-white" asp-controller="Account" asp-action="Index">Все пользователи</a>
