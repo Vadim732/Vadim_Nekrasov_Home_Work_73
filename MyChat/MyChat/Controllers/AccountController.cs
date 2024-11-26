@@ -153,14 +153,14 @@ public class AccountController : Controller
             if (user != null)
             {
                 var existingUserEmail = await _userManager.FindByEmailAsync(model.Email);
-                if (existingUserEmail != null)
+                if (existingUserEmail != null && existingUserEmail.Id != user.Id)
                 {
                     ViewBag.ErrorMessage = "Ошибка: Этот адрес электронной почты уже используется другим пользователем!";
                     return View(model);
                 }
             
                 var existingUserName = await _userManager.FindByNameAsync(model.UserName);
-                if (existingUserName != null)
+                if (existingUserName != null && existingUserName.Id != user.Id)
                 {
                     ViewBag.ErrorMessage = "Ошибка: Этот логин уже используется другим пользователем!";
                     return View(model);
