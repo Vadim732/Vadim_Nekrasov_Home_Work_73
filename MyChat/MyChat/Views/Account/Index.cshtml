@@ -28,7 +28,7 @@
                 {
                     <a asp-action="BlockUser" asp-route-userId="@a.Id" class="btn btn-outline-danger">Блокировать</a>
                 }
-                <a class="btn btn-outline-dark ml-1">Редактировать</a>
+                <a asp-action="UserEdit" asp-route-userId="@a.Id" class="btn btn-outline-dark ml-1">Редактировать</a>
             </td>
         </tr>
     }

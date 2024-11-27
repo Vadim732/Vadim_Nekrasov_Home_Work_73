@@ -340,4 +340,52 @@ public class AccountController : Controller
         }
         return RedirectToAction("Index", "Account");
     }
+    [Authorize(Roles = "admin")]
+    [HttpGet]
+    public async Task<IActionResult> UserEdit(int userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        var model = new UserEditViewModel
+        {
+            UserName = user.UserName,
+            Email = user.Email,
+            Avatar = user.Avatar
+        };
+
+        return View(model);
+    }
+    [Authorize(Roles = "admin")]
+    [HttpPost]
+    public async Task<IActionResult> UserEdit(int userId, UserEditViewModel uevm)
+    {
+        if (ModelState.IsValid)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            
+            var existingEmailUser = await _userManager.FindByEmailAsync(uevm.Email);
+            if (existingEmailUser != null && existingEmailUser.Id != user.Id)
+            {
+                ViewBag.ErrorMessage = "Этот адрес электронной почты уже используется другим пользователем!";
+                return View(uevm);
+            }
+
+            var existingUserNameUser = await _userManager.FindByNameAsync(uevm.UserName);
+            if (existingUserNameUser != null && existingUserNameUser.Id != user.Id)
+            {
+                ViewBag.ErrorMessage = "Этот логин уже используется другим пользователем!";
+                return View(uevm);
+            }
+
+            user.UserName = uevm.UserName;
+            user.Email = uevm.Email;
+            user.Avatar = uevm.Avatar;
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index", "Account");
+            }
+        }
+
+        return View(uevm);
+    }
 }

@@ -13,21 +13,27 @@
             <div id="messages-container" class="p-2">
                 @foreach (var m in Model)
                 {
-                    <div class="mt-2">
-                        <span class="text-muted small">@m.DateOfDispatch</span>
-                        <a asp-action="Profile" asp-route-userid="@m.UserId" asp-controller="Account">@m.User.UserName</a>
-                        <div>@m.Inscription</div>
+                    var alignmentClass = m.User.UserName == User.Identity.Name ? "text-end" : "text-start";
+                    var messageClass = m.User.UserName == User.Identity.Name ? "my-message" : "other-message";
+
+                    <div class="mt-2 @alignmentClass border-bottom border-secondary pb-2">
+                        <div class="message @messageClass">
+                            <img src="@m.User.Avatar" alt="User avatar" class="rounded-circle comment-user-avatar">
+                            <strong>@m.User.UserName</strong>
+                            <span class="text-muted small">@m.DateOfDispatch</span>
+                            <div>@m.Inscription</div>
+                        </div>
                     </div>
                 }
             </div>
         </div>
     </div>
     <div class="row bg-dark pt-3 pb-3">
-        <form id="message-form">
-            <div class="col-10">
+        <form id="message-form" class="d-flex w-100">
+            <div class="flex-grow-1 me-2">
                 <input type="text" id="message-input" class="form-control" placeholder="Введите сообщение..." required>
             </div>
-            <div class="col-2">
+            <div class="message-button">
                 <button type="submit" class="btn btn-outline-light w-100">Отправить</button>
             </div>
         </form>
