@@ -200,6 +200,8 @@ public class AccountController : Controller
 
         if (existingUser != null)
         {
+            var messages = _context.Messages.Where(m => m.UserId == existingUser.Id).ToList();
+            ViewBag.Messages = messages.Count;
             ViewBag.CurrentUser = user.Id;
             return View(existingUser);
         }
