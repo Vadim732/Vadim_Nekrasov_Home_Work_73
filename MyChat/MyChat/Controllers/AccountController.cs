@@ -199,6 +199,11 @@ public class AccountController : Controller
     public async Task<IActionResult> Edit()
     {
         User user = await _userManager.GetUserAsync(User);
+        var roles = await _userManager.GetRolesAsync(user);
+        if (roles.Contains("admin"))
+        {
+            return RedirectToAction("Profile", "Account");
+        }
         var model = new EditViewModel
         {
             UserName = user.UserName,
@@ -217,6 +222,11 @@ public class AccountController : Controller
         if (ModelState.IsValid)
         {
             User user = await _userManager.GetUserAsync(User);
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Contains("admin"))
+            {
+                return RedirectToAction("Profile", "Account");
+            }
             if (user != null)
             {
                 var existingUserEmail = await _userManager.FindByEmailAsync(model.Email);
@@ -248,7 +258,7 @@ public class AccountController : Controller
                 user.UserName = model.UserName;
                 user.Email = model.Email;
                 user.Avatar = model.Avatar;
-                user.DateOfBirth = model.DateOfBirth.ToUniversalTime();
+                user.DateOfBirth = DateTime.SpecifyKind(model.DateOfBirth, DateTimeKind.Utc);
 
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
@@ -277,11 +287,41 @@ public class AccountController : Controller
         {
             return NotFound($"Пользователь с ID {userId} не найден.");
         }
+        var roles = await _userManager.GetRolesAsync(user);
+        if (roles.Contains("admin"))
+        {
+            return RedirectToAction("Index", "Account");
+        }
         user.LockoutEnd = DateTimeOffset.MaxValue;
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
-            ViewBag.Message = "Пользователь успешно заблокирован навсегда.";
+            return RedirectToAction("Index", "Account");
+        }
+        return RedirectToAction("Index", "Account");
+    }
+
+    public async Task<IActionResult> UnblockUser(int userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return NotFound($"Пользователь с ID {userId} не найден.");
+        }
+        var roles = await _userManager.GetRolesAsync(user);
+        if (roles.Contains("admin"))
+        {
+            return RedirectToAction("Index", "Account");
+        }
+
+        if (user.LockoutEnd == null || user.LockoutEnd <= DateTimeOffset.Now)
+        {
+            return RedirectToAction("Index", "Account");
+        }
+        user.LockoutEnd = null;
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
             return RedirectToAction("Index", "Account");
         }
         return RedirectToAction("Index", "Account");

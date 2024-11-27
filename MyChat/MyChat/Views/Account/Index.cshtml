@@ -20,7 +20,14 @@
                 <strong class="mb-0">@a.UserName</strong>
             </td>
             <td>
-                <a asp-action="BlockUser" asp-route-userId="@a.Id" class="btn btn-outline-danger">Блокировать</a>
+                @if (a.LockoutEnd.HasValue)
+                {
+                    <a asp-action="UnblockUser" asp-route-userId="@a.Id" class="btn btn-outline-success">Разблокировать</a>
+                }
+                else
+                {
+                    <a asp-action="BlockUser" asp-route-userId="@a.Id" class="btn btn-outline-danger">Блокировать</a>
+                }
                 <a class="btn btn-outline-dark ml-1">Редактировать</a>
             </td>
         </tr>
