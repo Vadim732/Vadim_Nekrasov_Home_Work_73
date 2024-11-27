@@ -15,7 +15,7 @@
                 {
                     <div class="mt-2">
                         <span class="text-muted small">@m.DateOfDispatch</span>
-                        <strong>@m.User.UserName</strong>
+                        <a asp-action="Profile" asp-route-userid="@m.UserId" asp-controller="Account">@m.User.UserName</a>
                         <div>@m.Inscription</div>
                     </div>
                 }

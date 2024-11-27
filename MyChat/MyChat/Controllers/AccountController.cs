@@ -184,14 +184,25 @@ public class AccountController : Controller
     }
 
     [Authorize]
-    public async Task<IActionResult> Profile()
+    public async Task<IActionResult> Profile(int? userid)
     {
         User user = await _userManager.GetUserAsync(User);
-        if (user != null)
+        if (userid == null)
         {
-            return View(user);
+            userid = user.Id;
         }
-        return RedirectToAction("Login", "Account");
+        
+        var existingUser =  _context.Users.FirstOrDefault(u => u.Id == userid);
+        if (existingUser == null)
+        {
+            return NotFound($"Пользователь не найден.");
+        }
+
+        if (existingUser != null)
+        {
+            return View(existingUser);
+        }
+        return NotFound();
     }
     
     [HttpGet]
