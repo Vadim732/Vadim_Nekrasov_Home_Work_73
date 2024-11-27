@@ -200,6 +200,7 @@ public class AccountController : Controller
 
         if (existingUser != null)
         {
+            ViewBag.CurrentUser = user.Id;
             return View(existingUser);
         }
         return NotFound();
