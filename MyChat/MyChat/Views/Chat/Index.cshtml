@@ -16,7 +16,7 @@
                     var alignmentClass = m.User.UserName == User.Identity.Name ? "text-end" : "text-start";
                     var messageClass = m.User.UserName == User.Identity.Name ? "my-message" : "other-message";
 
-                    <div class="mt-2 @alignmentClass border-bottom border-secondary pb-2">
+                    <div id="message-@m.Id" class="mt-2 @alignmentClass border-bottom border-secondary pb-2 message-item">
                         <div class="message @messageClass">
                             <img src="@m.User.Avatar" alt="User avatar" class="rounded-circle comment-user-avatar">
                             <a class="text-decoration-none text-black" asp-action="Profile" asp-route-userid="@m.UserId" asp-controller="Account"><strong>@m.User.UserName</strong></a>
@@ -53,11 +53,7 @@
                 const charsLeft = maxLength - messageInput.val().length;
                 remainingChars.text(charsLeft);
             });
-
-            $('#chat-button').on('click', function () {
-                loadMessages();
-            });
-
+            
             $('#message-form').on('submit', function (e) {
                 e.preventDefault(); 
 
@@ -75,20 +71,25 @@
 
                         $('#message-input').val('');
                         remainingChars.text(maxLength);
-
-                        loadMessages()
+                        
+                        appendMessage({
+                            userName: response.userName,
+                            avatar: response.avatar,
+                            inscription: messageText,
+                            dateOfDispatch: new Date().toLocaleString(),
+                            isCurrentUser: true,
+                            messageId: response.messageId 
+                        });
                     },
                     error: function (xhr, status, error) {
                         console.error('Ошибка при отправке сообщения:', status, error);
                         alert('Произошла ошибка при отправке сообщения.');
-                    },
+                    }
                 });
             });
 
             let lastMessageTime = new Date().toISOString();
-            let isInChat = false;
-            let messageInterval;
-
+            
             function loadMessages() {
                 console.log("Загружаем последние 30 сообщений...");
 
@@ -105,24 +106,15 @@
                             console.log(`Загружено ${response.messages.length} новых сообщений.`);
 
                             response.messages.forEach(msg => {
-                                const userProfileUrl = `/Account/Profile?userid=${msg.userId}`;
-                                const alignmentClass = msg.userName === response.currentUser ? "text-end" : "text-start";
-                                const messageClass = msg.userName === response.currentUser ? "my-message" : "other-message";
-
-                                const newMessage = `
-                                <div class="mt-2 ${alignmentClass} border-bottom border-secondary pb-2 message-item" data-message-id="${msg.id}">
-                                    <div class="message ${messageClass}">
-                                        <img src="${msg.avatar}" alt="User avatar" class="rounded-circle comment-user-avatar">
-                                        <a class="text-decoration-none text-black" href="${userProfileUrl}">
-                                            <strong>${msg.userName}</strong>
-                                        </a>
-                                        <span class="text-muted small">${msg.dateOfDispatch}</span>
-                                        <div>${msg.inscription}</div>
-                                    </div>
-                                </div>
-                            `;
-
-                                $('#messages-container').append(newMessage);
+                                
+                                appendMessage({
+                                    userName: msg.userName,
+                                    avatar: msg.avatar,
+                                    inscription: msg.inscription,
+                                    dateOfDispatch: msg.dateOfDispatch,
+                                    isCurrentUser: msg.userName === response.currentUser,
+                                    messageId: msg.id 
+                                });
                             });
                         } else {
                             console.log("Нет новых сообщений");
@@ -133,20 +125,32 @@
                     }
                 });
             }
-
-
-            if (window.location.href === 'https://localhost:7217/') {
-                messageInterval = setInterval(loadMessages, 5000); 
-                isInChat = true;
-            }
-
-            $(window).on('beforeunload', function () {
-                if (isInChat) {
-                    clearInterval(messageInterval); 
+            
+            function appendMessage({ userName, avatar, inscription, dateOfDispatch, isCurrentUser, messageId }) {
+                if ($(`#message-${messageId}`).length > 0) {
+                    return;
                 }
-            });
+
+                const alignmentClass = isCurrentUser ? "text-end" : "text-start";
+                const messageClass = isCurrentUser ? "my-message" : "other-message";
+                const userProfileUrl = `/Account/Profile?userid=${userName}`;
+
+                const newMessage = `
+                    <div id="message-${messageId}" class="mt-2 ${alignmentClass} border-bottom border-secondary pb-2 message-item">
+                        <div class="message ${messageClass}">
+                            <img src="${avatar}" alt="User avatar" class="rounded-circle comment-user-avatar">
+                            <a class="text-decoration-none text-black" href="${userProfileUrl}">
+                                <strong>${userName}</strong>
+                            </a>
+                            <span class="text-muted small">${dateOfDispatch}</span>
+                            <div>${inscription}</div>
+                        </div>
+                    </div>
+                `;
+
+                $('#messages-container').append(newMessage);
+            }
+            setInterval(loadMessages, 5000);
         });
     </script>
-
-
 }
