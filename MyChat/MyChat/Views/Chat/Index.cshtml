@@ -31,7 +31,8 @@
     <div class="row bg-dark pt-3 pb-3">
         <form id="message-form" class="d-flex w-100">
             <div class="flex-grow-1 me-2">
-                <input type="text" id="message-input" class="form-control" placeholder="Введите сообщение..." required>
+                <input type="text" id="message-input" class="form-control" placeholder="Введите сообщение..." required maxlength="150">
+                <div id="char-count" class="text-muted small mt-1">Осталось <span id="remaining-chars">150</span> символов</div>
             </div>
             <div class="message-button">
                 <button type="submit" class="btn btn-outline-light w-100">Отправить</button>
@@ -44,6 +45,15 @@
 {
     <script>
         $(document).ready(function () {
+            const maxLength = 150;
+            const messageInput = $('#message-input');
+            const remainingChars = $('#remaining-chars');
+            
+            messageInput.on('input', function () {
+                const charsLeft = maxLength - messageInput.val().length;
+                remainingChars.text(charsLeft);
+            });
+
             $('#message-form').on('submit', function (e) {
                 e.preventDefault();
                 const messageText = $('#message-input').val().trim();
@@ -66,6 +76,7 @@
                         `;
                         $('#messages-container').append(newMessage);
                         $('#message-input').val('');
+                        remainingChars.text(maxLength);
                     },
                     error: function () {
                         alert('Произошла ошибка при отправке сообщения.');
