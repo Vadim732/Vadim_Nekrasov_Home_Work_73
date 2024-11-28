@@ -14,7 +14,10 @@
                 <h2 class="me-3">@Model.UserName</h2>
                 @if (ViewBag.CurrentUser == Model.Id)
                 {
-                    <a asp-action="Edit" asp-controller="Account" asp-route-userId="@ViewBag.currentUserId" class="btn btn-outline-secondary">Редактировать</a>
+                    if (!User.IsInRole("admin"))
+                    {
+                        <a asp-action="Edit" asp-controller="Account" asp-route-userId="@ViewBag.currentUserId" class="btn btn-outline-secondary">Редактировать</a>
+                    }
                     <a class="btn btn-outline-danger ml-1" asp-controller="Account" asp-action="Logout">Выйти</a>
                 }
             </div>

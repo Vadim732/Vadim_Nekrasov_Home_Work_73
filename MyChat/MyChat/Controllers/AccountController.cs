@@ -345,6 +345,11 @@ public class AccountController : Controller
     public async Task<IActionResult> UserEdit(int userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (await _userManager.IsInRoleAsync(user, "admin"))
+        {
+            ViewBag.ErrorMessage = "Невозможно редактировать администратора!";
+            return RedirectToAction("Index", "Account");
+        }
         var model = new UserEditViewModel
         {
             UserName = user.UserName,
@@ -361,7 +366,11 @@ public class AccountController : Controller
         if (ModelState.IsValid)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
-            
+            if (await _userManager.IsInRoleAsync(user, "admin"))
+            {
+                ViewBag.ErrorMessage = "Невозможно редактировать администратора!";
+                return RedirectToAction("Index", "Account");
+            }
             var existingEmailUser = await _userManager.FindByEmailAsync(uevm.Email);
             if (existingEmailUser != null && existingEmailUser.Id != user.Id)
             {
