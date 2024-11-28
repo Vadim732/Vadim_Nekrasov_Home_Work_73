@@ -51,4 +51,24 @@ public class ChatController : Controller
             inscription = message.Inscription
         });
     }
+
+    [HttpGet]
+    public IActionResult GetLatestMessages(DateTime lastMessageTime)
+    {
+        var messages = _context.Messages
+            .Where(m => m.DateOfDispatch > lastMessageTime)
+            .Include(m => m.User)
+            .OrderBy(m => m.DateOfDispatch)
+            .ToList();
+
+        var response = messages.Select(m => new
+        {
+            dateOfDispatch = m.DateOfDispatch.ToString("dd.MM.yyyy HH:mm:ss"),
+            userName = m.User.UserName,
+            inscription = m.Inscription
+        });
+
+        return Json(response);
+    }
+
 }

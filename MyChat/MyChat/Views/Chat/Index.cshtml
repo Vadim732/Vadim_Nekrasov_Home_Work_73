@@ -84,5 +84,34 @@
                 });
             });
         });
+
+        let lastMessageTime = new Date().toISOString(); 
+
+        function fetchLatestMessages() {
+            $.ajax({
+                url: '/Chat/GetLatestMessages',
+                type: 'GET',
+                data: { lastMessageTime: lastMessageTime },
+                success: function (response) {
+                    response.forEach(msg => {
+                        const newMessage = `
+                            <div class="mt-2">
+                                <span class="text-muted small">${msg.dateOfDispatch}</span>
+                                <strong>${msg.userName}</strong>
+                                <div>${msg.inscription}</div>
+                            </div>
+                        `;
+                        $('#messages-container').append(newMessage);
+                        lastMessageTime = msg.dateOfDispatch; 
+                    });
+                },
+                error: function () {
+                    console.error('Ошибка при получении новых сообщений');
+                }
+            });
+        }
+
+        setInterval(fetchLatestMessages, 5000);
+
     </script>
 }
