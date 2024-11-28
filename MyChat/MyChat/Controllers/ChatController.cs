@@ -44,8 +44,10 @@ public class ChatController : Controller
 
         return Json(new
         {
-            dateOfDispatch = message.DateOfDispatch.ToString("yyyy-MM-dd HH:mm:ss"),
+            avatar = creator.Avatar,
+            dateOfDispatch = message.DateOfDispatch.ToString("dd.MM.yyyy HH:mm:ss"),
             userName = creator.UserName,
+            userid = creator.Id,
             inscription = message.Inscription
         });
     }

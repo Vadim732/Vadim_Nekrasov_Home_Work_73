@@ -19,7 +19,7 @@
                     <div class="mt-2 @alignmentClass border-bottom border-secondary pb-2">
                         <div class="message @messageClass">
                             <img src="@m.User.Avatar" alt="User avatar" class="rounded-circle comment-user-avatar">
-                            <strong>@m.User.UserName</strong>
+                            <a class="text-decoration-none text-black" asp-action="Profile" asp-route-userid="@m.UserId" asp-controller="Account"><strong>@m.User.UserName</strong></a>
                             <span class="text-muted small">@m.DateOfDispatch</span>
                             <div>@m.Inscription</div>
                         </div>
@@ -53,11 +53,15 @@
                     type: 'POST',
                     data: { inscription: messageText },
                     success: function (response) {
+                        const userProfileUrl = `/Account/Profile?userid=${response.userId}`;
                         const newMessage = `
-                            <div class="mt-2">
-                                <span class="text-muted small">${response.dateOfDispatch}</span>
-                                <strong>${response.userName}</strong>
-                                <div>${response.inscription}</div>
+                            <div class="mt-2 text-end border-bottom border-secondary pb-2">
+                                <div class="message my-message">
+                                    <img src="${response.avatar}" alt="User avatar" class="rounded-circle comment-user-avatar">
+                                    <a class="text-decoration-none text-black" href="${userProfileUrl}"><strong>${response.userName}</strong></a>
+                                    <span class="text-muted small">${response.dateOfDispatch}</span>
+                                    <div>${response.inscription}</div>
+                                </div>
                             </div>
                         `;
                         $('#messages-container').append(newMessage);
