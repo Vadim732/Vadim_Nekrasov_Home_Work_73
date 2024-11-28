@@ -16,12 +16,20 @@ public class ChatController : Controller
         _userManager = userManager;
         _context = context;
     }
-    
+
     public IActionResult Index()
     {
-        List<Message> messages = _context.Messages.Include(m => m.User).ToList();
+        var messages = _context.Messages
+            .Include(m => m.User)
+            .OrderByDescending(m => m.DateOfDispatch)
+            .Take(30)
+            .ToList()
+            .OrderBy(m => m.DateOfDispatch) 
+            .ToList();
+
         return View(messages);
     }
+
 
     [HttpPost]
     public async Task<IActionResult> Create(Message message)
@@ -59,6 +67,7 @@ public class ChatController : Controller
             .Where(m => m.DateOfDispatch > lastMessageTime)
             .Include(m => m.User)
             .OrderBy(m => m.DateOfDispatch)
+            .Take(30)
             .ToList();
 
         var response = messages.Select(m => new

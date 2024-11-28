@@ -85,7 +85,13 @@
             });
         });
 
-        let lastMessageTime = new Date().toISOString(); 
+        
+
+
+    </script>
+
+    <script>
+        let lastMessageTime = new Date().toISOString();
 
         function fetchLatestMessages() {
             $.ajax({
@@ -95,14 +101,14 @@
                 success: function (response) {
                     response.forEach(msg => {
                         const newMessage = `
-                            <div class="mt-2">
-                                <span class="text-muted small">${msg.dateOfDispatch}</span>
-                                <strong>${msg.userName}</strong>
-                                <div>${msg.inscription}</div>
-                            </div>
-                        `;
+                                    <div class="mt-2">
+                                        <span class="text-muted small">${msg.dateOfDispatch}</span>
+                                        <strong>${msg.userName}</strong>
+                                        <div>${msg.inscription}</div>
+                                    </div>
+                                `;
                         $('#messages-container').append(newMessage);
-                        lastMessageTime = msg.dateOfDispatch; 
+                        lastMessageTime = msg.dateOfDispatch;
                     });
                 },
                 error: function () {
@@ -111,7 +117,5 @@
             });
         }
 
-        setInterval(fetchLatestMessages, 5000);
-
-    </script>
+        setInterval(fetchLatestMessages, 5000);</script>
 }
