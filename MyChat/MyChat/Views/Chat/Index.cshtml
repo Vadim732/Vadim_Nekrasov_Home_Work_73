@@ -54,82 +54,99 @@
                 remainingChars.text(charsLeft);
             });
 
+            $('#chat-button').on('click', function () {
+                loadMessages();
+            });
+
             $('#message-form').on('submit', function (e) {
-                e.preventDefault();
+                e.preventDefault(); 
+
                 const messageText = $('#message-input').val().trim();
                 if (!messageText) return;
+
+                console.log('Отправка сообщения:', messageText);
 
                 $.ajax({
                     url: '/Chat/Create',
                     type: 'POST',
-                    data: { inscription: messageText },
+                    data: { inscription: messageText },  
                     success: function (response) {
-                        console.log('Message created successfully:', response);
+                        console.log('Сообщение отправлено успешно:', response);
 
-                        const userProfileUrl = `/Account/Profile?userid=${response.userId}`;
-                        const newMessage = `
-                            <div class="mt-2 text-end border-bottom border-secondary pb-2 message-item" data-message-id="${response.id}">
-                                <div class="message my-message">
-                                    <img src="${response.avatar}" alt="User avatar" class="rounded-circle comment-user-avatar">
-                                    <a class="text-decoration-none text-black" href="${userProfileUrl}"><strong>${response.userName}</strong></a>
-                                    <span class="text-muted small">${response.dateOfDispatch}</span>
-                                    <div>${response.inscription}</div>
-                                    ${response.isAdmin ? `<button class="btn btn-danger btn-sm delete-message-btn" data-id="${response.id}">Удалить</button>` : ''}
-                                </div>
-                            </div>
-                        `;
-                        $('#messages-container').append(newMessage);
                         $('#message-input').val('');
                         remainingChars.text(maxLength);
+
+                        loadMessages()
                     },
                     error: function (xhr, status, error) {
-                        console.error('Error sending message:', status, error);
+                        console.error('Ошибка при отправке сообщения:', status, error);
                         alert('Произошла ошибка при отправке сообщения.');
                     },
                 });
             });
 
-            function fetchLatestMessages() {
-                console.log('Requesting the latest 30 messages');
+            let lastMessageTime = new Date().toISOString();
+            let isInChat = false;
+            let messageInterval;
+
+            function loadMessages() {
+                console.log("Загружаем последние 30 сообщений...");
 
                 $.ajax({
-                    url: '/Chat/GetLatestMessages', 
+                    url: '/Chat/GetLatestMessages',
                     type: 'GET',
+                    data: { lastMessageTime: lastMessageTime },
                     success: function (response) {
-                        console.log('Received response:', response);
+                        console.log('Ответ от сервера для загрузки сообщений:', response);
 
-                        if (!response || !response.messages) {
-                            console.error('No messages found or invalid response format');
-                            return;
-                        }
+                        if (response.messages && response.messages.length > 0) {
+                            lastMessageTime = response.messages[response.messages.length - 1].dateOfDispatch;
 
-                        $('#messages-container').empty();
+                            console.log(`Загружено ${response.messages.length} новых сообщений.`);
 
-                        response.messages.forEach(msg => {
-                            const userProfileUrl = `/Account/Profile?userid=${msg.userId}`;
-                            const newMessage = `
-                                <div class="mt-2 text-${msg.userName === response.currentUserName ? 'end' : 'start'} border-bottom border-secondary pb-2 message-item" data-message-id="${msg.id}">
-                                    <div class="message ${msg.userName === response.currentUserName ? 'my-message' : 'other-message'}">
+                            response.messages.forEach(msg => {
+                                const userProfileUrl = `/Account/Profile?userid=${msg.userId}`;
+                                const alignmentClass = msg.userName === response.currentUser ? "text-end" : "text-start";
+                                const messageClass = msg.userName === response.currentUser ? "my-message" : "other-message";
+
+                                const newMessage = `
+                                <div class="mt-2 ${alignmentClass} border-bottom border-secondary pb-2 message-item" data-message-id="${msg.id}">
+                                    <div class="message ${messageClass}">
                                         <img src="${msg.avatar}" alt="User avatar" class="rounded-circle comment-user-avatar">
-                                        <a class="text-decoration-none text-black" href="${userProfileUrl}"><strong>${msg.userName}</strong></a>
+                                        <a class="text-decoration-none text-black" href="${userProfileUrl}">
+                                            <strong>${msg.userName}</strong>
+                                        </a>
                                         <span class="text-muted small">${msg.dateOfDispatch}</span>
                                         <div>${msg.inscription}</div>
-                                        ${msg.isAdmin ? `<button class="btn btn-danger btn-sm delete-message-btn" data-id="${msg.id}">Удалить</button>` : ''}
                                     </div>
                                 </div>
                             `;
-                            $('#messages-container').append(newMessage);
-                        });
+
+                                $('#messages-container').append(newMessage);
+                            });
+                        } else {
+                            console.log("Нет новых сообщений");
+                        }
                     },
-                    error: function (xhr, status, error) {
-                        console.error('Error fetching messages:', status, error);
+                    error: function () {
+                        console.error('Ошибка при получении сообщений');
                     }
                 });
             }
 
-            setInterval(fetchLatestMessages, 5000);
-        });
 
+            if (window.location.href === 'https://localhost:7217/') {
+                messageInterval = setInterval(loadMessages, 5000); 
+                isInChat = true;
+            }
+
+            $(window).on('beforeunload', function () {
+                if (isInChat) {
+                    clearInterval(messageInterval); 
+                }
+            });
+        });
     </script>
+
 
 }
