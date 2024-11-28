@@ -106,12 +106,18 @@
                             console.log(`Загружено ${response.messages.length} новых сообщений.`);
 
                             response.messages.forEach(msg => {
+
+                                var date = `${msg.dateOfDispatch.split("T")[0].split("-").reverse().join(".")} ${msg.dateOfDispatch.split("T")[1].split(".")[0]}`
+                                console.log(date)
+                                console.log(date)
+                                console.log(date)
+                                console.log(date)
                                 
                                 appendMessage({
                                     userName: msg.userName,
                                     avatar: msg.avatar,
                                     inscription: msg.inscription,
-                                    dateOfDispatch: msg.dateOfDispatch,
+                                    dateOfDispatch: date,
                                     isCurrentUser: msg.userName === response.currentUser,
                                     messageId: msg.id 
                                 });

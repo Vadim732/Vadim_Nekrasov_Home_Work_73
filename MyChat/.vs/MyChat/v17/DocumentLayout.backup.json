@@ -38,8 +38,7 @@
               "RelativeToolTip": "MyChat\\Controllers\\AccountController.cs",
               "ViewState": "AgIAAG4BAAAAAAAAAAAQwIYBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-28T09:10:50.105Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-28T09:10:50.105Z"
             },
             {
               "$type": "Document",
@@ -51,8 +50,7 @@
               "RelativeToolTip": "MyChat\\Views\\Shared\\_Layout.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-28T08:57:38.723Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-28T08:57:38.723Z"
             },
             {
               "$type": "Document",
@@ -62,7 +60,7 @@
               "RelativeDocumentMoniker": "MyChat\\Views\\Chat\\Index.cshtml",
               "ToolTip": "C:\\Users\\ad0rfin\\Desktop\\C# \u041A\u0443\u0440\u0441\\hw67\\Vadim732-Vadim_Nekrasov_HomeWork_67\\MyChat\\MyChat\\Views\\Chat\\Index.cshtml",
               "RelativeToolTip": "MyChat\\Views\\Chat\\Index.cshtml",
-              "ViewState": "AgIAAHUAAAAAAAAAAAAAAIsAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAF4AAAAAAAAAAAAAAHAAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2024-11-28T08:56:40.309Z",
               "EditorCaption": ""
@@ -77,8 +75,7 @@
               "RelativeToolTip": "MyChat\\Controllers\\ChatController.cs",
               "ViewState": "AgIAAFcAAAAAAAAAAAAAwG4AAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-28T08:56:05.372Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-28T08:56:05.372Z"
             }
           ]
         }
