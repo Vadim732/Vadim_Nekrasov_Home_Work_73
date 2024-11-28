@@ -63,21 +63,53 @@ public class ChatController : Controller
     [HttpGet]
     public IActionResult GetLatestMessages(DateTime lastMessageTime)
     {
+        var currentUser = _userManager.GetUserAsync(User).Result;
         var messages = _context.Messages
-            .Where(m => m.DateOfDispatch > lastMessageTime)
-            .Include(m => m.User)
-            .OrderBy(m => m.DateOfDispatch)
-            .Take(30)
-            .ToList();
+                               .Where(m => m.DateOfDispatch > lastMessageTime)
+                               .OrderBy(m => m.DateOfDispatch)
+                               .Take(30)
+                               .Include(m => m.User)
+                               .ToList();
 
-        var response = messages.Select(m => new
+        var response = new
         {
-            dateOfDispatch = m.DateOfDispatch.ToString("dd.MM.yyyy HH:mm:ss"),
-            userName = m.User.UserName,
-            inscription = m.Inscription
-        });
+            messages = messages.Select(m => new
+            {
+                m.Id,
+                m.Inscription,
+                DateOfDispatch = m.DateOfDispatch.ToString("dd.MM.yyyy HH:mm:ss"),
+                m.User.UserName,
+                Avatar = m.User.Avatar,
+                m.UserId,
+                IsAdmin = User.IsInRole("admin") 
+            }).ToList(),
+            currentUserName = currentUser.UserName 
+        };
 
         return Json(response);
     }
+
+
+
+
+
+
+
+    [HttpPost]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> DeleteMessage(int messageId)
+    {
+        var message = await _context.Messages.FindAsync(messageId);
+        if (message == null)
+        {
+            return NotFound(new { error = "Сообщение не найдено." });
+        }
+
+        _context.Messages.Remove(message);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, messageId });
+    }
+
 
 }
