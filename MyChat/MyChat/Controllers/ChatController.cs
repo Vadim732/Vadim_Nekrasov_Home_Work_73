@@ -92,18 +92,23 @@ public class ChatController : Controller
 
     
     [HttpPost]
-    [Authorize(Roles = "admin")]
+    [Authorize]
     public async Task<IActionResult> DeleteMessage(int messageId)
     {
-        var message = await _context.Messages.FindAsync(messageId);
-        if (message == null)
+        var message = await _context.Messages.Include(m => m.User).FirstOrDefaultAsync(m => m.Id == messageId);
+        if (message != null)
         {
-            return NotFound(new { error = "Сообщение не найдено." });
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null || (message.UserId != currentUser.Id && !User.IsInRole("admin")))
+            {
+                return Forbid();
+            }
+
+            _context.Messages.Remove(message);
+            await _context.SaveChangesAsync();
+            return Ok(new { success = true, messageId });
         }
-
-        _context.Messages.Remove(message);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { success = true, messageId });
+        
+        return NotFound(new { error = "Сообщение не найдено." });
     }
 }

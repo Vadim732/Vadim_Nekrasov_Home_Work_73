@@ -22,6 +22,10 @@
                             <a class="text-decoration-none text-black" asp-action="Profile" asp-route-userid="@m.UserId" asp-controller="Account"><strong>@m.User.UserName</strong></a>
                             <span class="text-muted small">@m.DateOfDispatch</span>
                             <div>@m.Inscription</div>
+                            @if (User.IsInRole("admin"))
+                            {
+                                <button class="btn btn-link text-danger p-0" onclick="deleteMessage(@m.Id)">Удалить</button>
+                            }
                         </div>
                     </div>
                 }
@@ -78,7 +82,8 @@
                             inscription: messageText,
                             dateOfDispatch: new Date().toLocaleString(),
                             isCurrentUser: true,
-                            messageId: response.messageId 
+                            messageId: response.messageId ,
+                            userId: response.userId
                         });
                     },
                     error: function (xhr, status, error) {
@@ -108,10 +113,6 @@
                             response.messages.forEach(msg => {
 
                                 var date = `${msg.dateOfDispatch.split("T")[0].split("-").reverse().join(".")} ${msg.dateOfDispatch.split("T")[1].split(".")[0]}`
-                                console.log(date)
-                                console.log(date)
-                                console.log(date)
-                                console.log(date)
                                 
                                 appendMessage({
                                     userName: msg.userName,
@@ -119,6 +120,7 @@
                                     inscription: msg.inscription,
                                     dateOfDispatch: date,
                                     isCurrentUser: msg.userName === response.currentUser,
+                                    userId: msg.userId,
                                     messageId: msg.id 
                                 });
                             });
@@ -132,14 +134,14 @@
                 });
             }
             
-            function appendMessage({ userName, avatar, inscription, dateOfDispatch, isCurrentUser, messageId }) {
+            function appendMessage({ userName, avatar, inscription, dateOfDispatch, isCurrentUser, messageId, userId }) {
                 if ($(`#message-${messageId}`).length > 0) {
                     return;
                 }
 
                 const alignmentClass = isCurrentUser ? "text-end" : "text-start";
                 const messageClass = isCurrentUser ? "my-message" : "other-message";
-                const userProfileUrl = `/Account/Profile?userid=${userName}`;
+                const userProfileUrl = `/Account/Profile?userid=${userId}`;
 
                 const newMessage = `
                     <div id="message-${messageId}" class="mt-2 ${alignmentClass} border-bottom border-secondary pb-2 message-item">
@@ -158,5 +160,18 @@
             }
             setInterval(loadMessages, 5000);
         });
+        function deleteMessage(messageId) {
+            if (!confirm("Вы уверены, что хотите удалить это сообщение?")) return;
+
+            $.ajax({
+                url: '/Chat/DeleteMessage',
+                type: 'POST',
+                data: { messageId },
+                success: function (response) {
+                    console.log('Сообщение удалено:', response);
+                    $('#message-${messageId}').remove();
+                }
+            });
+        }
     </script>
 }
