@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyChat.Models;
+using MyChat.Services;
 using MyChat.ViewModels;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
@@ -12,12 +13,14 @@ public class AccountController : Controller
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
     private readonly MyChatContext _context;
+    private readonly EmailService _emailService;
 
-    public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, MyChatContext context)
+    public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, MyChatContext context, EmailService emailService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _context = context;
+        _emailService = emailService;
     }
     [Authorize (Roles = "admin")]
     public IActionResult Index()
@@ -138,20 +141,21 @@ public class AccountController : Controller
                 ViewBag.ErrorMessage = "Ошибка: Этот адрес электронной почты уже используется другим пользователем!";
                 return View(model);
             }
-            
+
             var existingUserName = await _userManager.FindByNameAsync(model.UserName);
             if (existingUserName != null)
             {
                 ViewBag.ErrorMessage = "Ошибка: Этот логин уже используется другим пользователем!";
                 return View(model);
             }
-            
+
             var currentDate = DateTime.UtcNow;
             var userAge = currentDate.Year - model.DateOfBirth.Year;
-            if (model.DateOfBirth > currentDate.AddYears(-userAge)) 
+            if (model.DateOfBirth > currentDate.AddYears(-userAge))
             {
                 userAge--;
             }
+
             if (userAge < 18)
             {
                 ViewBag.ErrorMessage = "Ошибка: Нельзя зарегистрироваться пользователям моложе 18 лет!";
@@ -164,13 +168,18 @@ public class AccountController : Controller
                 Email = model.Email,
                 Avatar = model.Avatar,
                 DateOfBirth = model.DateOfBirth.ToUniversalTime()
-                
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "user");
                 await _signInManager.SignInAsync(user, false);
+
+                var emailService = new EmailService();
+                string subject = "Добро пожаловать в MyChat!";
+                string message = $"Ваш логин: {user.UserName}. Предлогаю перейти в личный кабинет пользователя.";
+                await emailService.SendEmailAsync(user.Email, subject, message);
+
                 return RedirectToAction("Index", "Chat");
             }
 

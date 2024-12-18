@@ -16,6 +16,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
+builder.Services.AddScoped<EmailService>();
 
 var app = builder.Build();
 
