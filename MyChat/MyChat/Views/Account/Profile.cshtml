@@ -18,6 +18,10 @@
                     {
                         <a asp-action="Edit" asp-controller="Account" asp-route-userId="@ViewBag.currentUserId" class="btn btn-outline-secondary">Редактировать</a>
                     }
+                    <form asp-action="ToMail" method="post" class="ml-1" style="display:inline;">
+                        <input type="hidden" name="userid" value="@ViewBag.currentUserId" />
+                        <button type="submit" class="btn btn-outline-primary">Отправить данные на почту</button>
+                    </form>
                     <a class="btn btn-outline-danger ml-1" asp-controller="Account" asp-action="Logout">Выйти</a>
                 }
             </div>

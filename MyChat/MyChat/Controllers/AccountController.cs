@@ -431,4 +431,22 @@ public class AccountController : Controller
 
         return View(uevm);
     }
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToMail()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        int sentMessagesCount = _context.Messages.Count(m => m.UserId == user.Id);
+        string subject = "Ваши данные в MyChat";
+        string message = $"Вот ваши данные:\n\n" +
+                         $"Логин: {user.UserName}\n" +
+                         $"Электронная почта: {user.Email}\n" +
+                         $"Аватар: {user.Avatar}\n" +
+                         $"Количество отправленных сообщений: {sentMessagesCount}";
+
+        await _emailService.SendEmailAsync(user.Email, subject, message);
+        return RedirectToAction("Profile");
+    }
 }
