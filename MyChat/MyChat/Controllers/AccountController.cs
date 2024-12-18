@@ -236,10 +236,9 @@ public class AccountController : Controller
         };
         return View(model);
     }
-    
+
     [Authorize]
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EditViewModel model)
     {
         if (ModelState.IsValid)
@@ -250,34 +249,45 @@ public class AccountController : Controller
             {
                 return RedirectToAction("Profile", "Account");
             }
+
             if (user != null)
             {
                 var existingUserEmail = await _userManager.FindByEmailAsync(model.Email);
                 if (existingUserEmail != null && existingUserEmail.Id != user.Id)
                 {
-                    ViewBag.ErrorMessage = "Ошибка: Этот адрес электронной почты уже используется другим пользователем!";
+                    ViewBag.ErrorMessage =
+                        "Ошибка: Этот адрес электронной почты уже используется другим пользователем!";
                     return View(model);
                 }
-            
+
                 var existingUserName = await _userManager.FindByNameAsync(model.UserName);
                 if (existingUserName != null && existingUserName.Id != user.Id)
                 {
                     ViewBag.ErrorMessage = "Ошибка: Этот логин уже используется другим пользователем!";
                     return View(model);
                 }
-            
+
                 var currentDate = DateTime.Now;
                 var userAge = currentDate.Year - model.DateOfBirth.Year;
-                if (model.DateOfBirth > currentDate.AddYears(-userAge)) 
+                if (model.DateOfBirth > currentDate.AddYears(-userAge))
                 {
                     userAge--;
                 }
+
                 if (userAge < 18)
                 {
                     ViewBag.ErrorMessage = "Ошибка: Нельзя зарегистрироваться пользователям моложе 18 лет!";
                     return View(model);
                 }
-                
+
+                var oldData = new
+                {
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Avatar = user.Avatar,
+                    DateOfBirth = user.DateOfBirth
+                };
+
                 user.UserName = model.UserName;
                 user.Email = model.Email;
                 user.Avatar = model.Avatar;
@@ -286,18 +296,33 @@ public class AccountController : Controller
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
                 {
+                    string subject = "Ваш профиль был изменен";
+                    string message = $"Здравствуйте, {user.UserName}!\n\n" +
+                                     "Ваш профиль был успешно обновлен. Вот изменения, которые были внесены:\n\n" +
+                                     $"Старое имя (login): {oldData.UserName}\n" +
+                                     $"Новое имя (login): {user.UserName}\n\n" +
+                                     $"Старый email: {oldData.Email}\n" +
+                                     $"Новый email: {user.Email}\n\n" +
+                                     $"Ссылка на старый аватар: {oldData.Avatar}\n" +
+                                     $"Ссылка на новый аватар: {user.Avatar}\n\n" +
+                                     $"Старая дата рождения: {oldData.DateOfBirth:d}\n" +
+                                     $"Новая дата рождения: {user.DateOfBirth:d}";
+
+                    await _emailService.SendEmailAsync(user.Email, subject, message);
+
                     return RedirectToAction("Profile", "Account");
                 }
+
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
         }
-    
+
         return View(model);
     }
-    
+
     public async Task<IActionResult> Logout()
     {
         await _signInManager.SignOutAsync();
